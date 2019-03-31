@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hello</string>
+    <string name="but">按钮</string>
+    <string name="Hello">你好</string>
+</resources>
