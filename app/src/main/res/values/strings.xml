@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">Hello</string>
-    <string name="Hello">Hello!</string>
+    <string name="Hello">请输入温度</string>
     <string name="but">Button</string>
+    <string name="btn_lable">转化为华氏度</string>
+    <string name="result" />
+    <string name="lable_add1">+1 point</string>
+    <string name="lable_add2">+2 points</string>
+    <string name="lable_add3">+3 points</string>
+    <string name="btn_reset_label">Reset</string>
 
 </resources>
