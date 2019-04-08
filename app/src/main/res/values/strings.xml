@@ -8,5 +8,8 @@
     <string name="lable_add2">+2 points</string>
     <string name="lable_add3">+3 points</string>
     <string name="btn_reset_label">Reset</string>
-
+    <string name="btn_dollar_label">Dollar</string>
+    <string name="btn_euro_label">Euro</string>
+    <string name="btn_won_label">Won</string>
+    <string name="rmb_hint_txt">Input RMB</string>
 </resources>
