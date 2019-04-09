@@ -33,12 +33,21 @@
         android:layout_width="match_parent"
         android:onClick="onClick"
         android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/btn_won"
-        android:text="@string/btn_won_label"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:text="@string/btn_won_label" />
+
+    <Button
+        android:id="@+id/btn_opencfg"
         android:onClick="openOne"
-        android:layout_height="wrap_content" />
+        android:layout_marginTop="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_opencfg_label" />
 
 
 </LinearLayout>
