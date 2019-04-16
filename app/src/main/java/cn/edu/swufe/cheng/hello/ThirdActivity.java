@@ -1,7 +1,10 @@
 package cn.edu.swufe.cheng.hello;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
+import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,7 +15,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ThirdActivity extends AppCompatActivity {
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class ThirdActivity extends AppCompatActivity implements Runnable{
     private final String TAG = "Rate";
     private float dollarRate = 0.1f;
     private float euroRate = 0.2f;
@@ -20,6 +31,7 @@ public class ThirdActivity extends AppCompatActivity {
 
     EditText rmb;
     TextView show;
+    Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +40,35 @@ public class ThirdActivity extends AppCompatActivity {
 
         rmb = (EditText)findViewById(R.id.rmb);
         show = (TextView)findViewById(R.id.showOut);
+
+        //获取sp里保存的数据
+        SharedPreferences SharedPreferences=getSharedPreferences("myrate",Activity.MODE_PRIVATE);
+        //SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);//这个方法只能获取一个配置文件，用于保存关键信息
+        dollarRate=SharedPreferences.getFloat("dollar_rate",0.0f);
+        euroRate=SharedPreferences.getFloat("euro_rate",0.0f);
+        wonRate=SharedPreferences.getFloat("won_rate",0.0f);
+
+        Log.i(TAG,"onCreate:sp dollarRate="+dollarRate);
+        Log.i(TAG,"onCreate:sp euroRate="+euroRate);
+        Log.i(TAG,"onCreate:sp wonRate="+wonRate);
+
+        //开启子线程 Runnable
+        Thread t = new Thread(this);//this调用当前run方法
+        t.start();//开始运行
+
+        handler = new Handler(){
+            @Override
+            public void handleMessage(Message msg) {
+                if (msg.what == 5){
+                    String str = (String) msg.obj;
+                    Log.i(TAG,"handleMessage:getMessage msg= "+str);
+                    show.setText(str);
+                }
+                super.handleMessage(msg);//处理传过来的消息
+            }
+        };
+
+
     }
     public  void onClick(View btn){
         //获取用户输入内容
@@ -38,6 +79,7 @@ public class ThirdActivity extends AppCompatActivity {
         }else {
             //提示用户输入内容
             Toast.makeText(this,"请输入金额",Toast.LENGTH_SHORT).show();
+            return;
         }
         Log.i(TAG,"onClick: r="+r);
 
@@ -108,7 +150,69 @@ public class ThirdActivity extends AppCompatActivity {
             Log.i(TAG,"onActivityResult: euroRate="+euroRate);
             Log.i(TAG,"onActivityResult: wonRate="+wonRate);
 
+            //将新设置的汇率写道sp里
+            SharedPreferences SharedPreferences=getSharedPreferences("myrate",Activity.MODE_PRIVATE);
+            android.content.SharedPreferences.Editor editor = SharedPreferences.edit();
+            editor.putFloat("dollar_rate",dollarRate);
+            editor.putFloat("euro_rate",euroRate);
+            editor.putFloat("won_rate",wonRate);
+            editor.commit();
+            Log.i(TAG,"onActivityResult:数据以保存到sharedPreferences");
+
         }
         super.onActivityResult(requestCode,resultCode,data);
     }
+
+    @Override
+    public void run() {
+        Log.i(TAG,"run:run()......");
+        for (int i=1;i<3;i++){
+            Log.i(TAG,"run:i="+i);
+            try {
+                Thread.sleep(2000); //当前线程停止两秒，不让他跑这么快
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //获取Msg对象，用于返回
+        Message msg = handler.obtainMessage(5);
+        //msg.what = 5;   //arg1,arg2:一个参数，两个参数int   what：用于标记当前msg的属性  obj ：所有对象的父类
+        msg.obj = "Hello from run()";
+        handler.sendMessage(msg);
+
+
+        //获取网络数据
+        URL url = null;
+        try {
+            url = new URL("http://www.usd-cny.com/icbc.htm");
+            HttpURLConnection http = (HttpURLConnection) url.openConnection();
+            InputStream in = http.getInputStream();//获得一个输入流
+
+            String html = inputStream2String(in);//调用方法，将输入流转化为字符串
+            Log.i(TAG,"run:html="+html);
+
+        } catch (MalformedURLException e){
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+    //把数据流转化为字符串输出
+    private String inputStream2String(InputStream inputStream) throws IOException {
+        final int butfferSize = 1024;
+        final char[] buffer = new  char[butfferSize];
+        final StringBuilder out = new StringBuilder();
+        Reader in = new InputStreamReader(inputStream,"gb2312");
+        for(; ;){
+            int rsz = in.read(buffer,0,buffer.length);
+            if (rsz < 0)
+                break;
+            out.append(buffer,0,rsz);
+        }
+        return out.toString();
+    }
+
 }
+
