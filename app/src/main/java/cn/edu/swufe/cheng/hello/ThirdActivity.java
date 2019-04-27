@@ -254,8 +254,6 @@ public class ThirdActivity extends AppCompatActivity implements Runnable{
         //msg.obj = "Hello from run()";
         msg.obj = bundle;
         handler.sendMessage(msg);
-
-
     }
     //把数据流转化为字符串输出
     private String inputStream2String(InputStream inputStream) throws IOException {
