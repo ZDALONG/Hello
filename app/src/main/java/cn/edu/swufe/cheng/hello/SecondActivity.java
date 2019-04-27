@@ -21,7 +21,6 @@ public class SecondActivity extends AppCompatActivity{
         Log.i(TAG,"onCreate: ");
     }
 
-
     //调用outState方法和 savedInstanceState方法，保留旋转之前的状态
     @Override
     protected void onSaveInstanceState(Bundle outState) {
