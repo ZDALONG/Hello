@@ -1,6 +1,8 @@
 package cn.edu.swufe.cheng.hello;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,11 +22,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-public class MyList2Activity extends ListActivity implements Runnable,AdapterView.OnItemClickListener {
+public class MyList2Activity extends ListActivity implements Runnable,AdapterView.OnItemClickListener,AdapterView.OnItemLongClickListener {
 
-   private String TAG = "mylist2";
+    private String TAG = "mylist2";
     Handler handler;
-    private ArrayList<HashMap<String, String>> listTtems;//存放文字，图片信息
+    private List<HashMap<String, String>> listTtems;//存放文字，图片信息
     private SimpleAdapter listItemAdapter;//适配器
 
     @Override
@@ -43,8 +45,8 @@ public class MyList2Activity extends ListActivity implements Runnable,AdapterVie
             @Override
             public void handleMessage(Message msg) {
                 if (msg.what == 7) {
-                    List<HashMap<String, String>> List2 = (List<HashMap<String, String>>) msg.obj;
-                    listItemAdapter = new SimpleAdapter(MyList2Activity.this, List2,//ListItems 数据源
+                    listTtems = (List<HashMap<String, String>>) msg.obj;
+                    listItemAdapter = new SimpleAdapter(MyList2Activity.this, listTtems,//ListItems 数据源
                             R.layout.list_item,//ListItem的XML布局实现
                             new String[]{"ItemTitle", "ItemDetail"},
                             new int[]{R.id.itemTitle, R.id.itemDetail}//一一匹配关系，ItemTitle的数据放入itemTitle布局里，同理
@@ -55,6 +57,8 @@ public class MyList2Activity extends ListActivity implements Runnable,AdapterVie
             }
         };
         getListView().setOnItemClickListener(this);
+        getListView().setOnItemLongClickListener(this);
+
     }
 
     private void initListview() {
@@ -69,7 +73,7 @@ public class MyList2Activity extends ListActivity implements Runnable,AdapterVie
         listItemAdapter = new SimpleAdapter(this, listTtems,//ListItems 数据源
                 R.layout.list_item,//ListItem的XML布局实现
                 new String[]{"ItemTitle", "ItemDetail"},
-                new int[]{R.id.itemTitle, R.id.itemDetail}//一一匹配关系，ItemTitle的数据放入itemTitle布局里，同理
+                new int[]{R.id.itemTitle, R.id.itemDetail}//实现一一匹配关系，ItemTitle的数据放入itemTitle布局里，同理itemDetail
         );
     }
 
@@ -138,5 +142,29 @@ public class MyList2Activity extends ListActivity implements Runnable,AdapterVie
         rateCalc.putExtra("title",titleStr);
         rateCalc.putExtra("rate",Float.parseFloat(detailStr));
         startActivity(rateCalc);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+        Log.i(TAG,"onItemLongClick: 长按列表项position= "+ position);
+        //删除操作
+        //listTtems.remove(position);
+        //listItemAdapter.notifyDataSetChanged();
+
+        //构造对话框进行确认操作
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("提示").setMessage("请设置是否删除数据").setPositiveButton("是",new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Log.i(TAG,"onClick: 对话框事件处理");
+                listTtems.remove(position);
+                listItemAdapter.notifyDataSetChanged();
+            }
+        }).setNegativeButton("否",null);
+        builder.create().show();
+
+
+        Log.i(TAG,"onItemLongClick: size="+listTtems.size());
+        return true;//false表示短按事件依然可以生效
     }
 }
